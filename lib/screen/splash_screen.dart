@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:before_class_timer_app/screen/home_screen.dart';
+import 'package:before_class_timer_app/screen/home_screeen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,99 +12,123 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _textController;
-  late Animation<double> _textAnimation;
+  late Animation<double> textAnimation; // fontsize
+  late AnimationController textAnimationController;
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
-    Timer(Duration(seconds: 5), () {
-      Navigator.pushReplacement(context, _createRoute());
+    Timer(Duration(seconds:7), () {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+        return HomeScreeen();
+      }));
     });
-    _textController = AnimationController(
+    textAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 2),
+      duration: Duration(
+        seconds: 3,
+      ),
     );
-    _textAnimation = TweenSequence([
+    // textAnimation = Tween(begin: 0.0, end: 1.0).animate(
+    //     CurvedAnimation(parent: textAnimationController, curve: Curves.easeIn));
+    textAnimation = TweenSequence([
       TweenSequenceItem(
-        tween:
-            Tween(begin: 0.0, end: 0.5).chain(CurveTween(curve: Curves.easeIn)),
-        weight: 50,
-      ),
+          tween: Tween(begin: 0.0, end: 0.5)
+              .chain(CurveTween(curve: Curves.easeIn)),
+          weight: 50),
       TweenSequenceItem(
-        tween: Tween(begin: 0.5, end: 1.0)
-            .chain(CurveTween(curve: Curves.bounceOut)),
-        weight: 50,
-      ),
+          tween: Tween(
+            begin: 0.5,
+            end: 1.0,
+          ).chain(CurveTween(curve: Curves.bounceOut)),
+          weight: 50),
     ]).animate(
-      CurvedAnimation(
-        parent: _textController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: textAnimationController, curve: Curves.easeIn),
     );
-    _textController.forward();
+    textAnimationController.forward();
+
+    super.initState();
   }
 
-
-  Route _createRoute() {
-    return PageRouteBuilder(
-      pageBuilder: (context, _, __) => HomeScreen(),
-      transitionsBuilder: (context, animation, _, child) {
-        var begin = Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var curve = Curves.easeInOut;
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve,) );
-        var offsetAnimation = animation.drive(tween);
-        var scaleAnimation = animation.drive(Tween(begin: 0.0, end: 1.0));
-        return ScaleTransition(
-          scale: scaleAnimation,
-          child: child,
-        );
-      },
-    );
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
             TweenAnimationBuilder(
-                tween: IntTween(
-                  begin: 0,
-                  end: 100,
-                ),
-                duration: Duration(seconds: 2),
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value / 100,
-                    child: TweenAnimationBuilder(
-                      tween: SizeTween(begin: Size(0, 0), end: Size(100, 100)),
-                      duration: Duration(
-                        seconds: 2,
-                      ),
-                      builder: (context, size, child) {
-                        return FlutterLogo(size: size?.width);
-                      },
-                    ),
-                  );
-                }),
+              //  Opacity ni use garnu
+              tween: ColorTween(
+                begin: Colors.amber,
+                end: Colors.brown,
+              ),
+              duration: Duration(seconds: 5),
+              builder: (context, value, child) {
+                return Icon(
+                  Icons.alarm,
+                  size: 60,
+                  color: value,
+                );
+              },
+            ),
+            // AnimatedOpacity(
+            //   duration: Duration(
+            //     seconds: 4,
+            //   ),
+            //   curve: Curves.easeInOut,
+            //   opacity: 1, //0{l}-1(h)
+            //   child: FlutterLogo(
+            //     size: 100,
+            //   ),
+            // ),
+            // TweenAnimationBuilder(
+            //     tween: IntTween(
+            //       begin: 0,
+            //       end: 100,
+            //     ),
+            //     duration: Duration(
+            //       seconds: 4,
+            //     ),
+            //     builder: (context, value, _) {
+            //       return Opacity(
+            //         opacity: value/100, // value: 0-100 -> 0-1
+            //         child: Text(
+            //           "Timer App",
+            //           style: TextStyle(
+            //             fontSize: 40,
+            //             fontWeight: FontWeight.w600,
+            //           ),
+            //         ),
+            //       );
+            //     })
             AnimatedBuilder(
-              animation: _textAnimation,
-              builder: (context, _) {
-                return Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Text(
-                    'Welcome to Flutter Timer App',
-                    style: TextStyle(
-                      fontSize: _textAnimation.value * 20,
-                      fontWeight: FontWeight.w500,
-                    ),
+              animation: textAnimation,
+              builder: (context, child) {
+                return Text(
+                  "Timer App",
+                  style: TextStyle(
+                    fontSize: 40 * textAnimation.value,
+                    fontWeight: FontWeight.w600,
                   ),
                 );
               },
             ),
+            // TweenAnimationBuilder(
+            //     tween: Tween(
+            //       begin: 0.0,
+            //       end: 1.0,
+            //     ),
+            //     duration: Duration(
+            //       seconds: 4,
+            //     ),
+            //     builder: (context, size, _) {
+            //       return Text(
+            //         "Timer App",
+            //         style: TextStyle(
+            //           fontSize: 40 * textAnimation.value,
+            //           fontWeight: FontWeight.w600,
+            //         ),
+            //       );
+            //     })
           ],
         ),
       ),
