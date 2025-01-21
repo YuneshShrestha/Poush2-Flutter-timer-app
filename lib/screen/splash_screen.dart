@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:before_class_timer_app/screen/home_screeen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,10 +17,15 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController textAnimationController;
   @override
   void initState() {
-    Timer(Duration(seconds:7), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        return HomeScreeen();
-      }));
+    Timer(Duration(seconds: 5), () {
+      // Get.offAll(
+      //   HomeScreeen(),
+      //   transition: Transition.downToUp,
+      //   duration: Duration(
+      //     seconds: 2,
+      //   ),
+      // );
+      Navigator.pushReplacement(context, _createRoute());
     });
     textAnimationController = AnimationController(
       vsync: this,
@@ -48,6 +54,30 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
   }
 
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, _, __) {
+        return HomeScreeen();
+      },
+      transitionDuration: Duration(
+        seconds: 4,
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        // width or height [Offset]
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: Offset(0.0, 1.0),
+            end: Offset(0.0, 0.0),
+          ).animate(CurvedAnimation(
+            parent: animation,
+            curve: Curves.ease,
+          )),
+          child: child,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +85,7 @@ class _SplashScreenState extends State<SplashScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Implicit
             TweenAnimationBuilder(
               //  Opacity ni use garnu
               tween: ColorTween(
@@ -63,10 +94,13 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               duration: Duration(seconds: 5),
               builder: (context, value, child) {
-                return Icon(
-                  Icons.alarm,
-                  size: 60,
-                  color: value,
+                return Hero(
+                  tag: 'icon',
+                  child: Icon(
+                    Icons.alarm,
+                    size: 60,
+                    color: value,
+                  ),
                 );
               },
             ),
