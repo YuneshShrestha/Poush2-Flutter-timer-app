@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:before_class_timer_app/screen/home_screeen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,10 +17,12 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController textAnimationController;
   @override
   void initState() {
-    Timer(Duration(seconds:7), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        return HomeScreeen();
-      }));
+    Timer(Duration(seconds: 5), () {
+      Navigator.of(context).pushReplacement(_createRoute());
+      // Get.offAll(HomeScreeen(),
+      //     transition: Transition.downToUp,
+      //     duration: Duration(seconds: 2),
+      //     curve: Curves.bounceInOut);
     });
     textAnimationController = AnimationController(
       vsync: this,
@@ -41,11 +44,37 @@ class _SplashScreenState extends State<SplashScreen>
           ).chain(CurveTween(curve: Curves.bounceOut)),
           weight: 50),
     ]).animate(
-      CurvedAnimation(parent: textAnimationController, curve: Curves.easeIn),
+      CurvedAnimation(
+        parent: textAnimationController,
+        curve: Curves.easeIn,
+      ),
     );
     textAnimationController.forward();
 
     super.initState();
+  }
+
+  Route _createRoute() {
+    return PageRouteBuilder(
+        pageBuilder: (context, animation, __) => HomeScreeen(),
+        transitionDuration: Duration(seconds: 4),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: Offset(0.0, 1.0),
+              end: Offset.zero,
+            ).animate(
+              // animation,
+
+              // or
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.ease,
+              ),
+            ),
+            child: child,
+          );
+        });
   }
 
   @override
@@ -63,10 +92,13 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               duration: Duration(seconds: 5),
               builder: (context, value, child) {
-                return Icon(
-                  Icons.alarm,
-                  size: 60,
-                  color: value,
+                return Hero(
+                  tag: "title",
+                  child: Icon(
+                    Icons.alarm,
+                    size: 60,
+                    color: value,
+                  ),
                 );
               },
             ),
@@ -100,6 +132,7 @@ class _SplashScreenState extends State<SplashScreen>
             //         ),
             //       );
             //     })
+         
             AnimatedBuilder(
               animation: textAnimation,
               builder: (context, child) {
