@@ -18,11 +18,14 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     Timer(Duration(seconds: 5), () {
-      Navigator.of(context).pushReplacement(_createRoute());
-      // Get.offAll(HomeScreeen(),
-      //     transition: Transition.downToUp,
-      //     duration: Duration(seconds: 2),
-      //     curve: Curves.bounceInOut);
+      // Get.offAll(
+      //   HomeScreeen(),
+      //   transition: Transition.downToUp,
+      //   duration: Duration(
+      //     seconds: 2,
+      //   ),
+      // );
+      Navigator.pushReplacement(context, _createRoute());
     });
     textAnimationController = AnimationController(
       vsync: this,
@@ -44,10 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
           ).chain(CurveTween(curve: Curves.bounceOut)),
           weight: 50),
     ]).animate(
-      CurvedAnimation(
-        parent: textAnimationController,
-        curve: Curves.easeIn,
-      ),
+      CurvedAnimation(parent: textAnimationController, curve: Curves.easeIn),
     );
     textAnimationController.forward();
 
@@ -56,25 +56,26 @@ class _SplashScreenState extends State<SplashScreen>
 
   Route _createRoute() {
     return PageRouteBuilder(
-        pageBuilder: (context, animation, __) => HomeScreeen(),
-        transitionDuration: Duration(seconds: 4),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: Offset(0.0, 1.0),
-              end: Offset.zero,
-            ).animate(
-              // animation,
-
-              // or
-              CurvedAnimation(
-                parent: animation,
-                curve: Curves.ease,
-              ),
-            ),
-            child: child,
-          );
-        });
+      pageBuilder: (context, _, __) {
+        return HomeScreeen();
+      },
+      transitionDuration: Duration(
+        seconds: 4,
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        // width or height [Offset]
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: Offset(0.0, 1.0),
+            end: Offset(0.0, 0.0),
+          ).animate(CurvedAnimation(
+            parent: animation,
+            curve: Curves.ease,
+          )),
+          child: child,
+        );
+      },
+    );
   }
 
   @override
@@ -84,6 +85,7 @@ class _SplashScreenState extends State<SplashScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Implicit
             TweenAnimationBuilder(
               //  Opacity ni use garnu
               tween: ColorTween(
@@ -93,7 +95,7 @@ class _SplashScreenState extends State<SplashScreen>
               duration: Duration(seconds: 5),
               builder: (context, value, child) {
                 return Hero(
-                  tag: "title",
+                  tag: 'icon',
                   child: Icon(
                     Icons.alarm,
                     size: 60,
@@ -132,7 +134,6 @@ class _SplashScreenState extends State<SplashScreen>
             //         ),
             //       );
             //     })
-         
             AnimatedBuilder(
               animation: textAnimation,
               builder: (context, child) {
