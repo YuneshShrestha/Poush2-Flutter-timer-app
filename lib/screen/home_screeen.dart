@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rive/rive.dart';
+import 'package:get/get.dart';
+import '../controller/timer_animation_controller.dart';
 
 class HomeScreeen extends StatefulWidget {
   const HomeScreeen({super.key});
@@ -10,115 +12,103 @@ class HomeScreeen extends StatefulWidget {
 }
 
 class _HomeScreeenState extends State<HomeScreeen> {
-  Artboard? riveArtBoard;
-  SMIBool? processing;
-  SMITrigger? shake;
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    loadRiveFile();
-  }
-
-  loadRiveFile() async {
-    await RiveFile.initialize();
-    String rivePath = 'assets/pes.riv';
-    var data = await rootBundle.load(rivePath);
-    var file = RiveFile.import(data);
-    setState(() {
-      riveArtBoard = file.mainArtboard;
-      // controller
-      // StateMachineController
-      if (riveArtBoard != null) {
-        var controller = StateMachineController.fromArtboard(
-          riveArtBoard!,
-          'State Machine 1',
-        );
-        if (controller != null) {
-          riveArtBoard!.addController(controller);
-          controller.stateMachine.inputs.forEach((e) {
-            print(e.name + " " + e.runtimeType.toString());
-          });
-          processing = controller.findSMI('Processing');
-          shake = controller.findSMI('Shake');
-        }
-      }
-    });
-  }
-
+  var timerController = Get.find<TimerAnimationController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Hero(
-              tag: 'icon',
-              child: Icon(
-                Icons.alarm,
-                size: 30,
-                color: Colors.brown,
+        appBar: AppBar(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Hero(
+                tag: 'icon',
+                child: Icon(
+                  Icons.alarm,
+                  size: 30,
+                  color: Colors.brown,
+                ),
               ),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(
-              "Timer Screen",
-            ),
-          ],
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                "Timer Screen",
+              ),
+            ],
+          ),
         ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Rive
-            ClipRRect(
-              borderRadius: BorderRadius.circular(
-                100,
-              ),
-              child: SizedBox(
-                width: 200,
-                height: 200,
-                child: riveArtBoard == null
-                    ? SizedBox()
-                    : Rive(
-                        artboard: riveArtBoard!,
-                      ),
-              ),
-            ),
-            // Text
-            Text('Current time: 30 second'),
-            //  Add Timer Button
-            ElevatedButton(
-              onPressed: () {},
-              child: Text("Add Timer"),
-            ),
-            //  Start Button
-            TextButton(
-              onPressed: () {
-                if (processing != null) {
-                  processing!.value = true;
-                }
-              },
-              child: Text("Start"),
-            ),
+        body: Obx(() {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Rive
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                    100,
+                  ),
+                  child: SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: timerController.riveArtBoard == null
+                        ? SizedBox()
+                        : Rive(
+                            artboard: timerController.riveArtBoard!,
+                          ),
+                  ),
+                ),
+                // Text
+                Text(
+                    'Current time: ${timerController.currentTimeInSeconds} second'),
+                //  Add Timer Button
+                ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: TextField(
+                            keyboardType: TextInputType.number,
+                            onChanged: (val) {
+                              timerController.currentTimeInSeconds.value =
+                                  int.parse(val);
+                            },
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Enter time in seconds'),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text("Done"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Text("Add Timer"),
+                ),
+                //  Start Button
+                TextButton(
+                  onPressed: () {
+                    timerController.start();
+                  },
+                  child: Text("Start"),
+                ),
 
-            //  Stop Button
-            TextButton(
-              onPressed: () {
-                if (processing != null && shake != null) {
-                  shake!.fire();
-                  processing!.value = false;
-                }
-              },
-              child: Text("Stop"),
+                //  Stop Button
+                TextButton(
+                  onPressed: () {
+                    timerController.stop();
+                  },
+                  child: Text("Stop"),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          );
+        }));
   }
 }
