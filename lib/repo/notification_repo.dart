@@ -85,4 +85,7 @@ class NoificationRepository {
           UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
+  stopNotification() async {
+    await flutterLocalNotificationsPlugin.cancel(0);
+  }
 }

@@ -2,6 +2,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <application
         android:label="before_class_timer_app"
         android:name="${applicationName}"
@@ -55,6 +56,10 @@
             android:exported="false"
             android:stopWithTask="false"
             android:foregroundServiceType="location|dataSync|mediaPlayback|phoneCall"/>
+        <service
+            android:name="id.flutter.flutter_background_service.BackgroundService"
+            android:foregroundServiceType="location|dataSync|mediaPlayback|phoneCall"
+        />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

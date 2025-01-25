@@ -1,6 +1,5 @@
 import 'package:before_class_timer_app/controller/my_animation_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:rive/rive.dart';
 
 import 'package:get/get.dart';
@@ -18,28 +17,29 @@ class _HomeScreeenState extends State<HomeScreeen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Hero(
-                tag: 'icon',
-                child: Icon(
-                  Icons.alarm,
-                  size: 30,
-                  color: Colors.brown,
-                ),
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Hero(
+              tag: 'icon',
+              child: Icon(
+                Icons.alarm,
+                size: 30,
+                color: Colors.brown,
               ),
-              SizedBox(
-                width: 10,
-              ),
-              Text(
-                "Timer Screen",
-              ),
-            ],
-          ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              "Timer Screen",
+            ),
+          ],
         ),
-        body: Obx(() {
+      ),
+      body: Obx(
+        () {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -73,7 +73,7 @@ class _HomeScreeenState extends State<HomeScreeen> {
                             content: TextField(
                               onChanged: (value) {
                                 myAnimationController.currentTime.value =
-                                    int.parse(value);
+                                    int.tryParse(value) ?? 0;
                               },
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
@@ -117,6 +117,8 @@ class _HomeScreeenState extends State<HomeScreeen> {
               ],
             ),
           );
-        }));
+        },
+      ),
+    );
   }
 }

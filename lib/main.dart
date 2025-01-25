@@ -1,7 +1,9 @@
 import 'package:before_class_timer_app/bindings/binding.dart';
 import 'package:before_class_timer_app/repo/notification_repo.dart';
 import 'package:before_class_timer_app/screen/splash_screen.dart';
+import 'package:before_class_timer_app/services/back_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 // import 'package:workmanager/workmanager.dart';
@@ -14,6 +16,7 @@ void main() async {
   if (isNotificationDenied) {
     await Permission.notification.request();
   }
+  await initializeService();
   await NoificationRepository.notificationPlugin();
   runApp(MyApp());
 }
@@ -45,8 +48,37 @@ void main() async {
 //   });
 // }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print(state);
+    if (state == AppLifecycleState.paused) {
+      print('App in background');
+      FlutterBackgroundService().invoke('setAsBackground');
+    } else if (state == AppLifecycleState.resumed) {
+      print('App in foreground');
+      FlutterBackgroundService().invoke('setAsForeground');
+    }
+    super.didChangeAppLifecycleState(state);
+  }
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

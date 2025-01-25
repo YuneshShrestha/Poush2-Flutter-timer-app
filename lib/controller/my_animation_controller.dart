@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:before_class_timer_app/repo/notification_repo.dart';
+import 'package:before_class_timer_app/services/shared_preference_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 // import 'package:workmanager/workmanager.dart';
 
 class MyAnimationController extends GetxController {
@@ -15,17 +16,30 @@ class MyAnimationController extends GetxController {
   var currentTime = 0.obs;
   Timer? timer;
 
-  startTime() {
+  startTime() async {
     if (currentTime.value > 0) {
       if (processing != null) {
         processing!.value = true;
       }
-      // startBackgroundTimer();
-      NoificationRepository().scheduleNotification(currentTime.value);
 
+      NoificationRepository().scheduleNotification(currentTime.value);
+      var hasTimeStarted = await SharedPreferenceService().getIsTimerRunning();
+      var endExacTime = await SharedPreferenceService().getEndExacTime();
+      if (!hasTimeStarted ||
+          endExacTime < DateTime.now().millisecondsSinceEpoch) {
+        SharedPreferenceService().enterIsTimerRunning(true);
+        SharedPreferenceService()
+            .enterStartExacTime(DateTime.now().millisecondsSinceEpoch);
+        SharedPreferenceService().enterEndExacTime(
+          DateTime.now().millisecondsSinceEpoch + (currentTime.value * 1000),
+        );
+      }
       Timer.periodic(Duration(seconds: 1), (timer) {
         this.timer = timer;
         currentTime.value--;
+
+        SharedPreferenceService().enterTime(currentTime.value);
+
         if (currentTime.value == 0) {
           timer.cancel();
           if (processing != null) {
@@ -51,11 +65,23 @@ class MyAnimationController extends GetxController {
   }
 
   Future<void> _loadSavedTime() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? savedTime = prefs.getInt('remainingTime');
-    if (savedTime != null && savedTime > 0) {
-      currentTime.value = savedTime;
-      startTime();
+    try {
+      // var inputTime = await SharedPreferenceService().getRemainingTime();
+      // if (inputTime > 0) {
+      //   currentTime.value = inputTime;
+      //   startTime();
+      // }
+      var startExacTime = await SharedPreferenceService().getStartExacTime();
+      var endExacTime = await SharedPreferenceService().getEndExacTime();
+      if (startExacTime > 0 && endExacTime > 0) {
+        var currentTime = endExacTime - DateTime.now().millisecondsSinceEpoch;
+        if (currentTime > 0) {
+          this.currentTime.value = (currentTime / 1000).round();
+          startTime();
+        }
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
     }
   }
 
@@ -73,6 +99,7 @@ class MyAnimationController extends GetxController {
     if (timer != null) {
       timer!.cancel();
     }
+    NoificationRepository().stopNotification();
 
     if (processing != null) {
       processing!.value = false;
