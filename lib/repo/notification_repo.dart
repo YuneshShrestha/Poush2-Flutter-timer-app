@@ -31,7 +31,9 @@ class NoificationRepository {
         ?.requestNotificationsPermission();
 // Android Initialization
     AndroidInitializationSettings initializationSettingsAndroid =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
+        const AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
 
 // // iOS initialization
 //     DarwinInitializationSettings iosInitializationSettings =
@@ -69,6 +71,14 @@ class NoificationRepository {
           channelDescription: channel.description,
           importance: Importance.max,
           priority: Priority.high,
+          actions: [
+            AndroidNotificationAction(
+              'stop',
+              'Stop',
+              showsUserInterface: true,
+              cancelNotification: true,
+            ),
+          ],
         ),
       ),
       uiLocalNotificationDateInterpretation:
