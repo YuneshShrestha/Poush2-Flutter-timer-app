@@ -71,7 +71,7 @@ class _HomeScreeenState extends State<HomeScreeen> {
                             keyboardType: TextInputType.number,
                             onChanged: (val) {
                               timerController.currentTimeInSeconds.value =
-                                  int.parse(val);
+                                  int.tryParse(val) ?? 0;
                             },
                             decoration: InputDecoration(
                                 border: OutlineInputBorder(),

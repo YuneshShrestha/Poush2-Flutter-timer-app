@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:before_class_timer_app/services/notification_service.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart';
 
@@ -40,6 +42,9 @@ class TimerAnimationController extends GetxController {
   start() {
     // Timer (1 sec) {decrease}
     if (currentTimeInSeconds > 0) {
+      NotificationService.scheduleNotification(
+        currentTimeInSeconds.value,
+      );
       Timer.periodic(
           Duration(
             seconds: 1,
