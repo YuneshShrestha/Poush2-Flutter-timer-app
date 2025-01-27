@@ -29,7 +29,7 @@ class NotificationService {
 
     notificationsPlugin.initialize(
       InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: AndroidInitializationSettings('@mipmap/launcher_icon'),
       ),
       onDidReceiveNotificationResponse: (details) {
         Get.to(() {

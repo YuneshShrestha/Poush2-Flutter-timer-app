@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:before_class_timer_app/services/notification_service.dart';
+import 'package:before_class_timer_app/services/shared_preference_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
@@ -39,12 +40,24 @@ class TimerAnimationController extends GetxController {
     update();
   }
 
-  start() {
+  start() async {
     // Timer (1 sec) {decrease}
     if (currentTimeInSeconds > 0) {
       NotificationService.scheduleNotification(
         currentTimeInSeconds.value,
       );
+      var endTime = await SharedPreferenceService().getEndTime();
+      var isTimerRunning = await SharedPreferenceService().getIsTimerRunning();
+      var presentTime = DateTime.now().second;
+      if (isTimerRunning != true || endTime < presentTime) {
+        SharedPreferenceService().enterStartTime(DateTime.now().second);
+        SharedPreferenceService().enterEndTime(
+          DateTime.now()
+              .add(Duration(seconds: currentTimeInSeconds.value))
+              .second,
+        );
+        SharedPreferenceService().enterIsTimerRunning(true);
+      }
       Timer.periodic(
           Duration(
             seconds: 1,
@@ -74,9 +87,20 @@ class TimerAnimationController extends GetxController {
     }
   }
 
+  void _loadSavedTime() async {
+    var endTime = await SharedPreferenceService().getEndTime();
+    var presentTime = DateTime.now().second;
+    if (endTime > presentTime) {
+      currentTimeInSeconds.value = endTime - presentTime;
+
+      start();
+    }
+  }
+
   @override
-  void onInit() {
-    loadRiveFile();
+  void onInit() async {
+    await loadRiveFile();
+    _loadSavedTime();
     super.onInit();
   }
 }
