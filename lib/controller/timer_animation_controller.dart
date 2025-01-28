@@ -48,14 +48,12 @@ class TimerAnimationController extends GetxController {
       );
       var endTime = await SharedPreferenceService().getEndTime();
       var isTimerRunning = await SharedPreferenceService().getIsTimerRunning();
-      var presentTime = DateTime.now().second;
+      var presentTime = DateTime.now().millisecondsSinceEpoch;
       if (isTimerRunning != true || endTime < presentTime) {
         SharedPreferenceService().enterStartTime(DateTime.now().second);
         SharedPreferenceService().enterEndTime(
-          DateTime.now()
-              .add(Duration(seconds: currentTimeInSeconds.value))
-              .second,
-        );
+            DateTime.now().millisecondsSinceEpoch +
+                (currentTimeInSeconds.value * 1000));
         SharedPreferenceService().enterIsTimerRunning(true);
       }
       Timer.periodic(
@@ -89,9 +87,10 @@ class TimerAnimationController extends GetxController {
 
   void _loadSavedTime() async {
     var endTime = await SharedPreferenceService().getEndTime();
-    var presentTime = DateTime.now().second;
+    var presentTime = DateTime.now().millisecondsSinceEpoch;
     if (endTime > presentTime) {
-      currentTimeInSeconds.value = endTime - presentTime;
+      var currentTimeInMilliSeconds = endTime - presentTime;
+      currentTimeInSeconds.value = (currentTimeInMilliSeconds / 1000).round();
 
       start();
     }
